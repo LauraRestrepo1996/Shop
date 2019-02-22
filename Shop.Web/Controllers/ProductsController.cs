@@ -2,12 +2,15 @@
 
 namespace Shop.Web.Controllers
 {
+    using System;
+    using System.IO;
     using System.Threading.Tasks;
     using Data;
     using Data.Entities;
     using Helpers;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
+    using Shop.Web.Models;
 
     public class ProductsController : Controller
     {
@@ -53,18 +56,51 @@ namespace Shop.Web.Controllers
         // POST: Products/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Product product)
+        public async Task<IActionResult> Create(ProductViewModel view)
         {
             if (ModelState.IsValid)
             {
+                var path = string.Empty;
+
+                if (view.ImageFile != null && view.ImageFile.Length > 0)
+                {
+                    path = Path.Combine(Directory.GetCurrentDirectory(),
+                        "wwwroot\\images\\Products",
+                        view.ImageFile.FileName);
+
+                    using (var stream = new FileStream(path, FileMode.Create))
+                    {
+                        await view.ImageFile.CopyToAsync(stream);
+                    }
+
+                    path = $"~/images/Products/{view.ImageFile.FileName}";
+                }
+                var product = this.ToProduct(view, path);
                 // TODO: Pending to change to: this.User.Identity.Name
                 product.User = await this.userHelper.GetUserByEmailAsync("jzuluaga55@gmail.com");
                 await this.productRepository.CreateAsync(product);
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(product);
+            return View(view);
         }
+
+        private Product ToProduct(ProductViewModel view, string path)
+        {
+            return new Product
+            {
+                Id = view.Id,
+                ImageUrl = path,
+                IsAvailabe = view.IsAvailabe,
+                LastPurchase = view.LastPurchase,
+                LastSale = view.LastSale,
+                Name = view.Name,
+                Price = view.Price,
+                Stock = view.Stock,
+                User = view.User
+            };
+        }
+
 
         // GET: Products/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -80,25 +116,59 @@ namespace Shop.Web.Controllers
                 return NotFound();
             }
 
-            return View(product);
+            var view = this.ToProductViewModel(product);
+
+            return View(view);
+        }
+
+        private ProductViewModel ToProductViewModel(Product product)
+        {
+            return new ProductViewModel
+            {
+                Id = product.Id,    
+                IsAvailabe = product.IsAvailabe,
+                LastPurchase = product.LastPurchase,
+                LastSale = product.LastSale,
+                ImageUrl = product.ImageUrl,
+                Name = product.Name,
+                Price = product.Price,
+                Stock = product.Stock,
+                User = product.User
+            };
         }
 
         // POST: Products/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Product product)
+        public async Task<IActionResult> Edit(ProductViewModel view)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var path = view.ImageUrl;
+
+                    if (view.ImageFile != null && view.ImageFile.Length > 0)
+                    {
+                        path = Path.Combine(Directory.GetCurrentDirectory(),
+                            "wwwroot\\images\\Products",
+                            view.ImageFile.FileName);
+
+                        using (var stream = new FileStream(path, FileMode.Create))
+                        {
+                            await view.ImageFile.CopyToAsync(stream);
+                        }
+
+                        path = $"~/images/Products/{view.ImageFile.FileName}";
+                    }
+                    var product = this.ToProduct(view, path);
                     // TODO: Pending to change to: this.User.Identity.Name
                     product.User = await this.userHelper.GetUserByEmailAsync("jzuluaga55@gmail.com");
                     await this.productRepository.UpdateAsync(product);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await this.productRepository.ExistAsync(product.Id))
+                    if (!await this.productRepository.ExistAsync(view.Id))
                     {
                         return NotFound();
                     }
@@ -110,7 +180,7 @@ namespace Shop.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(product);
+            return View(view);
         }
 
         // GET: Products/Delete/5
