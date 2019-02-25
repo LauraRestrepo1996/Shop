@@ -7,5 +7,10 @@ namespace Shop.UIForms.ViewModels
     using System.Text;
     public class MainViewModel
     {
+        public LoginViewModel Login { get; set; }
+        public MainViewModel()
+        {
+            this.Login = new LoginViewModel();
+        }
     }
 }

@@ -13,4 +13,10 @@
   <ItemGroup>
     <PackageReference Include="Xamarin.Forms" Version="4.0.0.62955-pre2" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Views\LoginPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>
