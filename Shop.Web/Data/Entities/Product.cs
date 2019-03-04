@@ -7,11 +7,10 @@ namespace Shop.Web.Data.Entities
 
     public class Product : IEntity
     {
-        
         public int Id { get; set; }
 
+        [MaxLength(50, ErrorMessage = "The field {0} only can contain {1} characters length.")]
         [Required]
-        [MaxLength(50, ErrorMessage = "The field {0} only can contain a maximum {1} characters")]
         public string Name { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = false)]
@@ -38,7 +37,7 @@ namespace Shop.Web.Data.Entities
         {
             get
             {
-                if(string.IsNullOrEmpty(this.ImageUrl))
+                if (string.IsNullOrEmpty(this.ImageUrl))
                 {
                     return null;
                 }

@@ -2,6 +2,7 @@
 namespace Shop.UIForms.ViewModels
 {
     using GalaSoft.MvvmLight.Command;
+    using Shop.UIForms.Views;
     using System;
     using System.Windows.Input;
     using Xamarin.Forms;
@@ -16,36 +17,46 @@ namespace Shop.UIForms.ViewModels
 
         public LoginViewModel()
         {
-            this.Email = "jzualaga55@gmail.com";
+            this.Email = "jzuluaga55@gmail.com";
             this.Password = "123456";
         }
+
         private async void Login()
         {
-           if (string.IsNullOrEmpty(this.Email))
+            if (string.IsNullOrEmpty(this.Email))
             {
-                await Application.Current.MainPage.DisplayAlert("Error",
-                    "  You must enter an Email", 
+                await Application.Current.MainPage.DisplayAlert(
+                    "Error",
+                    "You must enter an email.",
                     "Accept");
                 return;
             }
 
             if (string.IsNullOrEmpty(this.Password))
             {
-                await Application.Current.MainPage.DisplayAlert("Error",
-                    "  You must enter an Email",
+                await Application.Current.MainPage.DisplayAlert(
+                    "Error",
+                    "You must enter a password.",
                     "Accept");
                 return;
             }
 
-            if(!this.Email.Equals("jzuluaga55@gmail.com") || this.Password.Equals("123456"))
+            if (!this.Email.Equals("jzuluaga55@gmail.com") || !this.Password.Equals("123456"))
             {
-                await Application.Current.MainPage.DisplayAlert("Error",
-                   " User or password wrong",
-                   "Accept");
+                await Application.Current.MainPage.DisplayAlert(
+                    "Error",
+                    "User or password wrong.",
+                    "Accept");
                 return;
             }
-            await Application.Current.MainPage.DisplayAlert("Ok", "Congratulation", "Accept");
 
+            //await Application.Current.MainPage.DisplayAlert(
+            //    "Ok",
+            //    "Fuck yeah!!!",
+            //    "Accept");
+
+            MainViewModel.GetInstance().Products = new ProductsViewModel();
+            await Application.Current.MainPage.Navigation.PushAsync(new ProductsPage());
         }
     }
 }
