@@ -72,6 +72,9 @@ namespace Shop.Web.Data
                 }
 
                 await this.userHelper.AddUserToRoleAsync(user, "Admin");
+                var token = await this.userHelper.GenerateEmailConfirmationTokenAsync(user);
+                await this.userHelper.ConfirmEmailAsync(user, token);
+
 
             }
 
